@@ -38,7 +38,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
       </div>
 
       {images.length > 1 ? (
-        <ul className="mt-4 grid grid-cols-5 gap-3 sm:grid-cols-6 sm:gap-4">
+        <ul className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-6 sm:gap-4">
           {images.map((image, index) => {
             const selected = index === activeIndex;
             return (

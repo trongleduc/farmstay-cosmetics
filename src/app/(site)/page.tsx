@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import type { CSSProperties } from 'react';
 
 import { FrameTrace } from '@/components/frame-trace';
 import { ArrowRight, featureIcon } from '@/components/icons';
@@ -9,9 +10,15 @@ import { Reveal } from '@/components/reveal';
 import { SectionHeading } from '@/components/section-heading';
 import { SocialIconRow } from '@/components/social-links';
 import { formatPrice } from '@/lib/format';
-import { editorial } from '@/lib/imagery';
+import { categoryArt, editorial } from '@/lib/imagery';
 import { getFacets, getFeaturedProducts, getProducts } from '@/lib/products';
-import { bannerHighlights, brandDirections, coreValues, socialLinks } from '@/lib/site';
+import {
+  bannerHighlights,
+  brandDirections,
+  categoryBlurbs,
+  coreValues,
+  socialLinks,
+} from '@/lib/site';
 
 export default async function HomePage() {
   const [products, featured, facets] = await Promise.all([
@@ -23,11 +30,19 @@ export default async function HomePage() {
   const [lead, ...rest] = featured;
   const newest = products.slice(0, 3);
 
-  // Mỗi phân loại mượn ảnh của một sản phẩm thuộc phân loại đó làm ảnh minh họa.
-  const categoryCards = facets.categories.map((facet) => ({
-    ...facet,
-    product: products.find((item) => item.category === facet.value && item.images.length),
-  }));
+  // Ảnh minh họa của mỗi phân loại lấy từ `lib/imagery.ts`; phân loại chưa có
+  // ảnh riêng thì mượn ảnh của một sản phẩm thuộc phân loại đó.
+  const categoryCards = facets.categories.map((facet) => {
+    const art = categoryArt[facet.value];
+    const product = products.find((item) => item.category === facet.value && item.images.length);
+    return {
+      ...facet,
+      blurb: categoryBlurbs[facet.value] ?? `${facet.count} sản phẩm Farmstay.`,
+      image: art ?? (product ? { src: product.images[0], alt: product.name } : null),
+      // Ảnh sản phẩm chụp nền trắng thì đặt lọt khung, ảnh bối cảnh thì phủ kín.
+      cover: Boolean(art),
+    };
+  });
 
   // Dải ảnh cuối trang: lấy ảnh đầu tiên của năm sản phẩm khác nhau.
   const gallery = products.filter((item) => item.images.length).slice(0, 5);
@@ -35,40 +50,56 @@ export default async function HomePage() {
   return (
     <>
       {/* ------------------------------------------------------- Banner đầu trang */}
-      <section className="relative isolate overflow-hidden -mt-18 md:-mt-22 pt-18 md:pt-22">
-        <Image
-          src={editorial.banner.src}
-          alt=""
-          aria-hidden="true"
-          fill
-          priority
-          sizes="100vw"
-          className="-z-20 scale-105 object-cover object-center"
-        />
-        {/* Lớp phủ sáng: trên di động phủ đều, trên màn rộng chỉ đậm ở nửa trái
-            để phần chữ luôn đọc rõ mà vẫn thấy được ảnh. */}
-        {/* <div
-          className="absolute inset-0 -z-10 bg-gradient-to-b from-white/92 via-white/78 to-white/92 md:bg-gradient-to-r md:from-white md:via-white/85 md:to-white/25"
-          aria-hidden="true"
-        /> */}
+      <section className="relative isolate -mt-18 flex flex-col overflow-hidden bg-cream md:-mt-22 md:block md:bg-transparent">
+        {/*
+          Ảnh banner là ảnh ngang, sản phẩm nằm lệch phải. Cắt giữa trên màn hình
+          dọc sẽ xén mất sản phẩm và đẩy chữ đè lên nó, nên trên di động ảnh tách
+          thành một dải riêng nằm dưới phần chữ; từ md trở lên mới phủ kín nền.
+        */}
+        <div className="relative order-2 h-64 w-full sm:h-80 md:absolute md:inset-0 md:order-none md:-z-20 md:h-full">
+          <Image
+            src={editorial.banner.src}
+            alt=""
+            aria-hidden="true"
+            fill
+            priority
+            sizes="100vw"
+            data-intro="zoom"
+            className="object-cover object-[72%_center] md:scale-105 md:object-center"
+          />
+          {/* Chuyển tiếp mềm giữa nền chữ và dải ảnh, chỉ dùng trên di động */}
+          <div
+            className="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-cream to-transparent md:hidden"
+            aria-hidden="true"
+          />
+        </div>
 
-        <div className="container-page">
-          <div className="flex min-h-[30rem] max-w-2xl flex-col justify-center py-20 md:min-h-[34rem] md:py-24 lg:min-h-[38rem] lg:py-28">
-            <Reveal>
-              <h1 className="font-display text-[2.75rem] leading-[1.08] text-ink sm:text-5xl lg:text-[3.75rem]">
+        {/* Lớp phủ sáng ở nửa trái để phần chữ luôn đọc rõ mà vẫn thấy được ảnh.
+            Trên di động chữ đã nằm trên nền kem nên không cần lớp phủ này. */}
+        <div
+          className="absolute inset-0 -z-10 hidden bg-gradient-to-r from-white/65 via-white/25 to-transparent md:block"
+          aria-hidden="true"
+        />
+
+        <div className="container-page order-1 pt-18 md:order-none md:pt-22">
+          <div className="flex max-w-2xl flex-col justify-center py-14 sm:py-16 md:min-h-[34rem] md:py-24 lg:min-h-[38rem] lg:py-28">
+            {/* Khối chữ dùng hiệu ứng vào trang (animation CSS chạy ngay khi dựng)
+                thay cho reveal theo cuộn, vì nó đã nằm sẵn trong khung nhìn. */}
+            <div data-intro style={{ '--intro-delay': '150ms' } as CSSProperties}>
+              <h1 className="font-display text-[2.25rem] leading-[1.08] text-ink sm:text-5xl lg:text-[3.75rem]">
                 Vẻ đẹp an toàn
                 <br />
                 dành cho tất cả
               </h1>
-            </Reveal>
-            <Reveal delay={90}>
-              <p className="lead mt-7 max-w-md">
+            </div>
+            <div data-intro style={{ '--intro-delay': '260ms' } as CSSProperties}>
+              <p className="lead mt-6 max-w-md sm:mt-7">
                 Farmstay phát triển các sản phẩm chăm sóc da lấy cảm hứng từ thiên nhiên, kết hợp
                 cùng nghiên cứu công thức hiện đại, để mỗi làn da đều tìm được giải pháp phù hợp.
               </p>
-            </Reveal>
-            <Reveal delay={160}>
-              <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
+            </div>
+            <div data-intro style={{ '--intro-delay': '370ms' } as CSSProperties}>
+              <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4 sm:mt-9">
                 <Link href="/products" className="btn">
                   Khám phá sản phẩm
                   <ArrowRight className="h-4 w-4" />
@@ -77,17 +108,17 @@ export default async function HomePage() {
                   Câu chuyện thương hiệu
                 </Link>
               </div>
-            </Reveal>
-            <Reveal delay={230}>
-              <div className="mt-12 flex max-w-md items-center gap-5 border-t border-line pt-7">
-                <p className="shrink-0 text-[1.75rem] leading-none font-semibold text-ink whitespace-nowrap tabular-nums">
+            </div>
+            <div data-intro style={{ '--intro-delay': '480ms' } as CSSProperties}>
+              <div className="mt-10 flex max-w-md items-center gap-4 border-t border-line pt-6 sm:mt-12 sm:gap-5 sm:pt-7">
+                <p className="shrink-0 text-2xl leading-none font-semibold text-ink whitespace-nowrap tabular-nums sm:text-[1.75rem]">
                   1,8 triệu
                 </p>
                 <p className="text-xs leading-relaxed text-muted">
                   chai Collagen &amp; Hyaluronic Acid All-in-One Ampoule đã được bán ra
                 </p>
               </div>
-            </Reveal>
+            </div>
           </div>
         </div>
       </section>
@@ -324,56 +355,74 @@ export default async function HomePage() {
 
       {/* --------------------------------------------------- Phân loại sản phẩm */}
       {categoryCards.length ? (
-        <section className="border-y border-line bg-cream py-20 md:py-28">
+        <section className="border-y border-line bg-cream py-16 md:py-24">
           <div className="container-page">
-            <SectionHeading
-              eyebrow="Danh mục"
-              title="Khám phá theo phân loại"
-              description="Tìm nhóm sản phẩm phù hợp với nhu cầu chăm sóc của bạn."
-              aside={
-                <Link href="/products" className="link-line text-ink hover:text-accent">
+            <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+              {/* Cột giới thiệu bên trái, các thẻ phân loại trải sang phải */}
+              <Reveal className="lg:col-span-4 lg:flex lg:flex-col lg:justify-between lg:py-2">
+                <div>
+                  <h2 className="font-display text-[1.75rem] leading-[1.2] text-ink md:text-[2rem]">
+                    Khám phá
+                    <br />
+                    danh mục sản phẩm
+                  </h2>
+                  <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted lg:max-w-[17rem]">
+                    Tìm thấy sản phẩm phù hợp với nhu cầu làm đẹp của bạn.
+                  </p>
+                </div>
+                {/* self-start để gạch chân của liên kết ôm đúng phần chữ,
+                    thay vì kéo dài hết cột khi cột là flex dọc. */}
+                <Link
+                  href="/products"
+                  className="link-line mt-8 text-ink hover:text-accent lg:self-start"
+                >
                   Xem tất cả sản phẩm
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-              }
-            />
+              </Reveal>
 
-            <div className="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-              {categoryCards.map((card, index) => (
-                <Reveal key={card.value} delay={index * 80}>
-                  <article className="frame-trace h-full">
-                    <Link
-                      href={`/products?category=${encodeURIComponent(card.value)}`}
-                      className="card-surface group flex h-full flex-col overflow-hidden"
-                    >
-                      <div className="relative aspect-4/3 overflow-hidden bg-white">
-                        {card.product?.images[0] ? (
-                          <Image
-                            src={card.product.images[0]}
-                            alt={card.product.name}
-                            fill
-                            sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"
-                            className="object-contain p-6"
-                          />
-                        ) : null}
-                      </div>
-                      <div className="flex flex-1 items-start justify-between gap-5 border-t border-line p-6 md:p-7">
-                        <div>
-                          <h3 className="text-base tracking-[0.02em] text-ink">{card.value}</h3>
-                          <p className="mt-2 text-sm text-muted">{card.count} sản phẩm</p>
+              <div className="grid gap-6 sm:grid-cols-2 lg:col-span-8 lg:grid-cols-3">
+                {categoryCards.map((card, index) => (
+                  <Reveal key={card.value} delay={index * 80}>
+                    <article className="frame-trace h-full">
+                      <Link
+                        href={`/products?category=${encodeURIComponent(card.value)}`}
+                        className="card-surface group flex h-full flex-col overflow-hidden"
+                      >
+                        <div className="relative aspect-4/3 overflow-hidden bg-cream">
+                          {card.image ? (
+                            <Image
+                              src={card.image.src}
+                              alt={card.image.alt}
+                              fill
+                              sizes="(min-width: 1024px) 26vw, (min-width: 640px) 45vw, 90vw"
+                              className={card.cover ? 'object-cover' : 'object-contain p-6'}
+                            />
+                          ) : null}
                         </div>
-                        <span
-                          className="icon-chip icon-chip-sm transition-colors group-hover:bg-accent group-hover:text-white"
-                          aria-hidden="true"
-                        >
-                          <ArrowRight className="h-4 w-4" />
-                        </span>
-                      </div>
-                    </Link>
-                    <FrameTrace />
-                  </article>
-                </Reveal>
-              ))}
+                        <div className="flex flex-1 flex-col border-t border-line p-5 md:p-6">
+                          <div className="flex items-baseline justify-between gap-3">
+                            <h3 className="text-xs leading-snug font-semibold tracking-[0.14em] text-ink uppercase">
+                              {card.value}
+                            </h3>
+                            <span className="shrink-0 text-[0.6875rem] text-muted tabular-nums">
+                              {card.count}
+                            </span>
+                          </div>
+                          <div className="mt-auto flex items-end justify-between gap-4 pt-4">
+                            <p className="text-sm leading-relaxed text-muted">{card.blurb}</p>
+                            <ArrowRight
+                              className="mb-1 h-4 w-4 shrink-0 text-line-strong transition-all duration-500 group-hover:translate-x-1 group-hover:text-accent"
+                              aria-hidden="true"
+                            />
+                          </div>
+                        </div>
+                      </Link>
+                      <FrameTrace />
+                    </article>
+                  </Reveal>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -393,7 +442,7 @@ export default async function HomePage() {
               {facets.lines.map((line, index) => (
                 <Reveal key={line.value} delay={index * 60}>
                   <Link
-                    href={`/products?dong=${encodeURIComponent(line.value)}`}
+                    href={`/products?line=${encodeURIComponent(line.value)}`}
                     className="card-surface group flex h-full items-center justify-between gap-6 px-6 py-5 hover:bg-cream"
                   >
                     <div>
@@ -410,7 +459,22 @@ export default async function HomePage() {
       ) : null}
 
       {/* -------------------------------------------------- Định hướng thương hiệu */}
-      <section className="border-y border-line bg-sand py-20 md:py-28">
+      <section className="relative isolate overflow-hidden border-y border-line py-20 md:py-28">
+        {/* Ảnh nền để lộ rất nhẹ dưới lớp phủ màu cát, đủ tạo chất liệu mà vẫn
+            giữ chữ và thẻ trắng phía trên đọc rõ. */}
+        <Image
+          src={editorial.directions.src}
+          alt=""
+          aria-hidden="true"
+          fill
+          sizes="100vw"
+          className="-z-20 object-cover object-center"
+        />
+        <div
+          className="absolute inset-0 -z-10 bg-gradient-to-b from-sand/85 via-sand/35 to-sand/95"
+          aria-hidden="true"
+        />
+
         <div className="container-page">
           <SectionHeading
             eyebrow="Định hướng"

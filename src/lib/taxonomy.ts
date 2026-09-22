@@ -42,12 +42,14 @@ export const productConcerns = [
 /** Ba trục phân loại, trùng tên với ba trường tương ứng của sản phẩm. */
 export type TaxonomyKey = 'line' | 'category' | 'concern';
 
+/** `short` là nhãn dùng cho nút lọc trên màn hình hẹp, nơi không đủ chỗ cho nhãn đầy đủ. */
 export const taxonomyGroups = [
-  { key: 'line', label: 'Dòng sản phẩm', values: productLines },
-  { key: 'category', label: 'Phân loại', values: productCategories },
-  { key: 'concern', label: 'Vấn đề da', values: productConcerns },
+  { key: 'line', label: 'Dòng sản phẩm', short: 'Dòng', values: productLines },
+  { key: 'category', label: 'Phân loại', short: 'Loại', values: productCategories },
+  { key: 'concern', label: 'Vấn đề da', short: 'Vấn đề', values: productConcerns },
 ] as const satisfies readonly {
   key: TaxonomyKey;
   label: string;
+  short: string;
   values: readonly string[];
 }[];

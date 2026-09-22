@@ -88,6 +88,21 @@ export const brandLines = [
   },
 ] as const;
 
+/**
+ * Một dòng giới thiệu ngắn cho từng phân loại, hiện ở khối "Khám phá danh mục"
+ * trên trang chủ. Khóa trùng với `productCategories` trong `lib/taxonomy.ts`;
+ * phân loại chưa có câu giới thiệu thì thẻ chỉ hiện số sản phẩm.
+ */
+export const categoryBlurbs: Record<string, string> = {
+  'LÀM SẠCH / TẨY TẾ BÀO CHẾT': 'Bước làm sạch cho da thông thoáng trước khi dưỡng.',
+  'CHĂM SÓC DA': 'Toner, ampoule và kem dưỡng cho quy trình hằng ngày.',
+  'CHĂM SÓC MẮT': 'Chăm sóc vùng da mỏng quanh mắt.',
+  'KEM CHỐNG NẮNG': 'Bảo vệ da trước tác động của ánh nắng.',
+  'CHĂM SÓC TÓC': 'Bộ sưu tập dành riêng cho mái tóc khỏe đẹp.',
+  'CHĂM SÓC DA TAY': 'Nuôi dưỡng làn da mịn màng, mềm mại.',
+  'MẶT NẠ': 'Bước chăm sóc chuyên sâu cho da tươi sáng, rạng rỡ.',
+};
+
 /** Khóa biểu tượng, khớp với bảng icon trong `components/icons.tsx`. */
 export type FeatureIcon = 'leaf' | 'droplet' | 'sparkle' | 'shield' | 'heart' | 'layers' | 'flask' | 'globe' | 'face';
 

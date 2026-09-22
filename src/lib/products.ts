@@ -99,6 +99,8 @@ export type TaxonomyOption = { value: string; count: number };
 export type TaxonomyGroup = {
   key: TaxonomyKey;
   label: string;
+  /** Nhãn rút gọn cho nút lọc trên màn hình hẹp. */
+  short: string;
   options: TaxonomyOption[];
 };
 
@@ -129,7 +131,7 @@ export async function getTaxonomy(): Promise<TaxonomyGroup[]> {
       if (!declared.includes(value)) options.push({ value, count });
     }
 
-    return { key: group.key, label: group.label, options };
+    return { key: group.key, label: group.label, short: group.short, options };
   });
 }
 

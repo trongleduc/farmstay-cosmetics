@@ -66,9 +66,9 @@ export default function ContactPage() {
                 <p className="eyebrow">Liên hệ</p>
               </Reveal>
               <Reveal delay={80}>
-                <h1 className="mt-5 font-display text-[2.25rem] leading-[1.12] text-ink md:text-5xl">
+                <h1 className="mt-5 font-display text-[2rem] leading-[1.12] text-ink sm:text-[2.25rem] md:text-5xl">
                   Chúng tôi luôn sẵn sàng
-                  <br />
+                  <br className="hidden sm:inline" />{' '}
                   lắng nghe bạn
                 </h1>
               </Reveal>

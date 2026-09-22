@@ -3,14 +3,14 @@ import Link from 'next/link';
 
 import { SearchIcon } from '@/components/icons';
 import { ProductCard } from '@/components/product-card';
+import { ProductFilters } from '@/components/product-filters';
+import { Reveal } from '@/components/reveal';
 import {
   buildHref,
   hasActiveFilter,
-  ProductTabs,
   SORT_OPTIONS,
   type ProductQuery,
-} from '@/components/product-tabs';
-import { Reveal } from '@/components/reveal';
+} from '@/lib/product-query';
 import { getProducts, getTaxonomy } from '@/lib/products';
 import { site } from '@/lib/site';
 import type { Product } from '@/lib/types';
@@ -84,14 +84,22 @@ export default async function ProductsPage(props: PageProps<'/products'>) {
 
   return (
     <>
+      {/* ---------------------------------------- Thanh lọc, dính ở đầu trang */}
+      <ProductFilters
+        groups={groups}
+        query={query}
+        total={products.length}
+        resultCount={filtered.length}
+      />
+
       <section className="bg-white">
         <div className="container-page">
-          <div className="max-w-2xl py-12 md:py-16">
+          <div className="max-w-2xl py-10 md:py-14">
             <Reveal>
               <p className="eyebrow">Danh mục</p>
             </Reveal>
             <Reveal delay={80}>
-              <h1 className="mt-5 font-display text-[2.25rem] leading-[1.12] text-ink md:text-5xl">
+              <h1 className="mt-5 font-display text-[2rem] leading-[1.12] text-ink sm:text-[2.25rem] md:text-5xl">
                 Sản phẩm Farmstay
               </h1>
             </Reveal>
@@ -105,24 +113,10 @@ export default async function ProductsPage(props: PageProps<'/products'>) {
         </div>
       </section>
 
-      {/* ------------------------------------------------------ Thanh tab lọc */}
-      <section className="border-y border-line bg-cream">
-        <div className="container-page py-7 md:py-8">
-          <ProductTabs groups={groups} query={query} total={products.length} />
-        </div>
-      </section>
-
-      <section className="bg-white py-10 md:py-14">
+      <section className="bg-white pb-10 md:pb-14">
         <div className="container-page">
-          {/* ------------------------------------------ Số lượng, tìm kiếm, sắp xếp */}
-          <div className="flex flex-col gap-5 border-b border-line pb-6 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
-            <p className="shrink-0 text-sm text-muted">
-              <span className="font-medium text-ink tabular-nums">{filtered.length}</span> sản phẩm
-              {filtered.length !== products.length ? (
-                <span className="tabular-nums"> / {products.length}</span>
-              ) : null}
-            </p>
-
+          {/* ------------------------------------------------ Tìm kiếm, sắp xếp */}
+          <div className="flex flex-col gap-5 border-y border-line py-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
             <form action="/products" className="relative w-full lg:max-w-xs">
               {query.line ? <input type="hidden" name="line" value={query.line} /> : null}
               {query.category ? (
@@ -148,7 +142,7 @@ export default async function ProductsPage(props: PageProps<'/products'>) {
               />
             </form>
 
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5">
               <span className="text-[0.625rem] font-semibold tracking-[0.2em] text-muted uppercase">
                 Sắp xếp
               </span>

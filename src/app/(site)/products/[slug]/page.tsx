@@ -268,7 +268,7 @@ export default async function ProductDetailPage(props: PageProps<'/products/[slu
                         <dt className="text-muted">Dòng sản phẩm</dt>
                         <dd className="mt-1">
                           <Link
-                            href={`/products?dong=${encodeURIComponent(product.line)}`}
+                            href={`/products?line=${encodeURIComponent(product.line)}`}
                             className="text-ink underline-offset-4 transition-colors hover:text-accent hover:underline"
                           >
                             {product.line}

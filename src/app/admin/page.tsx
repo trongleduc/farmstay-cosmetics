@@ -53,7 +53,7 @@ export default async function AdminProductsPage(props: PageProps<'/admin'>) {
           <p className="mt-3 text-sm text-muted">Bấm “Thêm sản phẩm” để tạo mục đầu tiên.</p>
         </div>
       ) : (
-        <div className="mt-8 overflow-x-auto rounded-2xl border border-line bg-white">
+        <div className="scroll-slim mt-8 overflow-x-auto rounded-2xl border border-line bg-white">
           <table className="w-full min-w-[56rem] border-collapse text-left">
             <thead>
               <tr className="border-b border-line">

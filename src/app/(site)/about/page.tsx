@@ -42,9 +42,11 @@ export default function AboutPage() {
                 <p className="eyebrow">Giới thiệu</p>
               </Reveal>
               <Reveal delay={90}>
-                <h1 className="mt-6 font-display text-[2.25rem] leading-[1.12] text-ink sm:text-5xl lg:text-[3.25rem]">
+                {/* Ngắt dòng cứng chỉ áp dụng từ sm trở lên; màn hình hẹp để chữ
+                    tự xuống dòng cho khỏi lẻ chữ. */}
+                <h1 className="mt-6 font-display text-[2rem] leading-[1.12] text-ink sm:text-5xl lg:text-[3.25rem]">
                   Chăm sóc da lấy cảm hứng
-                  <br />
+                  <br className="hidden sm:inline" />{' '}
                   từ thiên nhiên
                 </h1>
               </Reveal>
@@ -138,9 +140,9 @@ export default function AboutPage() {
             <div className="lg:col-span-6">
               <Reveal>
                 <p className="eyebrow">Lịch sử</p>
-                <h2 className="mt-5 font-display text-3xl leading-tight text-ink md:text-4xl lg:text-[2.75rem]">
+                <h2 className="mt-5 font-display text-[1.75rem] leading-tight text-ink sm:text-3xl md:text-4xl lg:text-[2.75rem]">
                   Hệ sinh thái chăm sóc da
-                  <br />
+                  <br className="hidden sm:inline" />{' '}
                   được xây dựng dần theo thời gian
                 </h2>
               </Reveal>

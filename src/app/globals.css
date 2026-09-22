@@ -1,26 +1,584 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Bảng màu: nền trắng là chủ đạo, xen kẽ các mảng nền ấm rất nhạt (cream, sand)
+   để trang mềm mại hơn. Ảnh sản phẩm đóng vai trò mảng màu chính.
+   Footer và các dải nhấn dùng tông mực đậm. */
+@theme {
+  --color-ink: #14110f;
+  --color-ink-soft: #4a443f;
+  --color-muted: #857d75;
+  --color-line: #e9e3da;
+  --color-line-strong: #cec7bc;
+  /* Ba mức nền ấm, nhạt dần đến đậm dần */
+  --color-cream: #faf8f4;
+  --color-sand: #f3ede3;
+  --color-accent-wash: #f7f0e4;
+  --color-accent: #96784c;
+  --color-accent-soft: #bfa982;
+
+  /* Bo góc dùng chung cho thẻ, khung ảnh và ô nhập liệu */
+  --radius-card: 1rem;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-playfair), "Times New Roman", serif;
+  --font-sans: var(--font-montserrat), "Segoe UI", system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    min-width: 0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    /* Chặn tràn ngang do hiệu ứng reveal dịch sang trái/phải lúc chưa hiện.
+       Dùng `clip` thay cho `hidden` để không tạo vùng cuộn mới, giữ được
+       header dính ở đầu trang. */
+    overflow-x: clip;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Chỉ tiêu đề lớn dùng font serif; tiêu đề nhỏ theo font chữ chung (Montserrat).
+     Nơi nào cần serif cho tiêu đề nhỏ thì thêm class font-display. */
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+  }
+
+  h3,
+  h4 {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--color-ink);
+  }
+
+  ::selection {
+    background-color: var(--color-ink);
+    color: #ffffff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  img {
+    -webkit-user-drag: none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Khung nội dung chuẩn của toàn site */
+  .container-page {
+    width: 100%;
+    max-width: 82rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .container-page {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  /* Nhãn chữ nhỏ in hoa, dùng cho tiêu đề phụ của từng khối */
+  .eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  .lead {
+    font-size: 1.0625rem;
+    line-height: 1.85;
+    color: var(--color-ink-soft);
+  }
+
+  /* ------------------------------------------------------------------
+     Nút bấm: viên thuốc bo tròn hoàn toàn, nền mực đậm, bóng đổ rất nhẹ.
+     ------------------------------------------------------------------ */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.625rem;
+    border-radius: 9999px;
+    padding: 0.9375rem 2rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    border: 1px solid var(--color-ink);
+    background-color: var(--color-ink);
+    color: #ffffff;
+    box-shadow: 0 10px 24px -18px rgba(20, 17, 15, 0.9);
+    transition:
+      background-color 0.35s ease,
+      color 0.35s ease,
+      border-color 0.35s ease,
+      box-shadow 0.35s ease,
+      transform 0.35s ease;
+  }
+
+  .btn:hover {
+    background-color: transparent;
+    color: var(--color-ink);
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px -20px rgba(20, 17, 15, 0.75);
+  }
+
+  /* Mũi tên trong nút nhích sang phải khi hover */
+  .btn svg {
+    transition: transform 0.35s ease;
+  }
+
+  .btn:hover svg {
+    transform: translateX(3px);
+  }
+
+  .btn-outline {
+    background-color: transparent;
+    color: var(--color-ink);
+    border-color: var(--color-line-strong);
+    box-shadow: none;
+  }
+
+  .btn-outline:hover {
+    background-color: var(--color-ink);
+    border-color: var(--color-ink);
+    color: #ffffff;
+  }
+
+  .btn-light {
+    background-color: #ffffff;
+    border-color: #ffffff;
+    color: var(--color-ink);
+  }
+
+  .btn-light:hover {
+    background-color: transparent;
+    color: #ffffff;
+  }
+
+  /* Nút phụ nền vàng đồng rất nhạt, dùng cho hành động thứ hai */
+  .btn-soft {
+    background-color: var(--color-accent-wash);
+    border-color: transparent;
+    color: var(--color-accent);
+    box-shadow: none;
+  }
+
+  .btn-soft:hover {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #ffffff;
+  }
+
+  .btn-sm {
+    padding: 0.6875rem 1.375rem;
+    font-size: 0.625rem;
+  }
+
+  /* Liên kết dạng chữ với gạch chân chạy từ trái sang */
+  .link-line {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding-bottom: 0.25rem;
+  }
+
+  .link-line::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: 100%;
+    background-color: currentColor;
+    transform: scaleX(1);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  .link-line:hover::after {
+    transform: scaleX(0.35);
+  }
+
+  .link-line svg {
+    transition: transform 0.3s ease;
+  }
+
+  .link-line:hover svg {
+    transform: translateX(3px);
+  }
+
+  .hairline {
+    height: 1px;
+    width: 100%;
+    background-color: var(--color-line);
+  }
+
+  /* ------------------------------------------------------------------
+     Bề mặt thẻ dùng chung: bo góc, viền mảnh, bóng đổ rất nhẹ khi hover.
+     ------------------------------------------------------------------ */
+  .card-surface {
+    border-radius: var(--radius-card);
+    border: 1px solid var(--color-line);
+    background-color: #ffffff;
+    transition:
+      box-shadow 0.45s ease,
+      border-color 0.45s ease,
+      background-color 0.45s ease;
+  }
+
+  .card-surface:hover {
+    border-color: var(--color-line-strong);
+    box-shadow: 0 22px 45px -34px rgba(20, 17, 15, 0.7);
+  }
+
+  /* Huy hiệu nhỏ bo tròn, nền vàng đồng rất nhạt */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 9999px;
+    padding: 0.3125rem 0.75rem;
+    background-color: var(--color-accent-wash);
+    color: var(--color-accent);
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    line-height: 1.4;
+  }
+
+  .tag-plain {
+    background-color: var(--color-cream);
+    color: var(--color-ink-soft);
+  }
+
+  /* Ô tròn chứa biểu tượng, dùng cho các khối giá trị và tiện ích */
+  .icon-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 3rem;
+    width: 3rem;
+    flex: none;
+    border-radius: 9999px;
+    background-color: var(--color-accent-wash);
+    color: var(--color-accent);
+    transition:
+      background-color 0.4s ease,
+      color 0.4s ease;
+  }
+
+  .icon-chip-sm {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+
+  /* Nút tròn cho biểu tượng mạng xã hội trên header và footer */
+  .social-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.25rem;
+    width: 2.25rem;
+    flex: none;
+    border-radius: 9999px;
+    border: 1px solid var(--color-line);
+    background-color: #ffffff;
+    color: var(--color-ink-soft);
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease,
+      color 0.3s ease,
+      transform 0.3s ease;
+  }
+
+  .social-dot:hover {
+    background-color: var(--color-accent-wash);
+    border-color: var(--color-accent-soft);
+    color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+
+  /* Biến thể trên nền tối (footer) */
+  .social-dot-dark {
+    border-color: rgba(255, 255, 255, 0.18);
+    background-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .social-dot-dark:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #ffffff;
+  }
+
+  /* Kênh chưa có đường dẫn: vẫn hiện biểu tượng nhưng mờ và không bấm được */
+  .social-dot-idle {
+    color: var(--color-line-strong);
+    cursor: default;
+  }
+
+  .social-dot-idle:hover {
+    background-color: #ffffff;
+    border-color: var(--color-line);
+    color: var(--color-line-strong);
+    transform: none;
+  }
+
+  .social-dot-dark.social-dot-idle {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.28);
+  }
+
+  .social-dot-dark.social-dot-idle:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.28);
+  }
+
+  /* ------------------------------------------------------------------
+     Thanh tab lọc ngang của trang sản phẩm.
+     Danh mục dài bao nhiêu cũng chỉ cuộn ngang trong hàng của nó, không
+     đẩy vỡ bố cục trang; thanh cuộn được ẩn cho gọn.
+     ------------------------------------------------------------------ */
+  /* Bọc ngoài hàng tab: tạo lớp mờ dần ở mép phải báo còn mục phía sau.
+     Đặt ở phần tử cha vì phần tử con là vùng cuộn, gắn vào đó sẽ trôi theo. */
+  .tab-fade {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .tab-fade::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    right: 0;
+    width: 2.5rem;
+    pointer-events: none;
+    background: linear-gradient(to right, transparent, var(--color-cream));
+  }
+
+  .tab-scroll {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding-block: 0.25rem;
+  }
+
+  .tab-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-chip {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 0.5rem;
+    scroll-snap-align: start;
+    border-radius: 9999px;
+    border: 1px solid var(--color-line);
+    background-color: #ffffff;
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    color: var(--color-ink-soft);
+    transition:
+      background-color 0.3s ease,
+      border-color 0.3s ease,
+      color 0.3s ease;
+  }
+
+  .tab-chip:hover {
+    border-color: var(--color-accent-soft);
+    background-color: var(--color-accent-wash);
+    color: var(--color-accent);
+  }
+
+  .tab-chip-active,
+  .tab-chip-active:hover {
+    border-color: var(--color-ink);
+    background-color: var(--color-ink);
+    color: #ffffff;
+  }
+
+  .tab-chip-count {
+    font-size: 0.6875rem;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.55;
+  }
+
+  /* Mục chưa có sản phẩm: hiện mờ để vẫn thấy đủ danh mục, không bấm được */
+  .tab-chip-empty,
+  .tab-chip-empty:hover {
+    border-color: var(--color-line);
+    background-color: transparent;
+    color: var(--color-line-strong);
+    cursor: default;
+  }
+
+  /* Ô nhập liệu bo góc mềm */
+  .field {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-line);
+    background-color: #ffffff;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    color: var(--color-ink);
+    outline: none;
+    transition:
+      border-color 0.3s ease,
+      box-shadow 0.3s ease;
+  }
+
+  .field::placeholder {
+    color: var(--color-muted);
+  }
+
+  .field:focus {
+    border-color: var(--color-accent-soft);
+    box-shadow: 0 0 0 3px rgba(191, 169, 130, 0.18);
+  }
+
+  /* ------------------------------------------------------------------
+     Viền chạy quanh khung khi hover (thay cho hiệu ứng phóng to ảnh).
+     Dùng một hình chữ nhật SVG có bo góc: nét vẽ chạy hết chu vi theo
+     chiều kim đồng hồ và ôm đúng bán kính bo góc của khung.
+     Thuộc tính pathLength="1" chuẩn hóa chu vi về 1 nên khung to hay nhỏ
+     đều chạy hết một vòng trong cùng một khoảng thời gian.
+     ------------------------------------------------------------------ */
+  .frame-trace {
+    position: relative;
+  }
+
+  .frame-trace__line {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* Nét vẽ nằm giữa mép khung nên nửa phía ngoài cần được hiện ra */
+    overflow: visible;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .frame-trace__rect {
+    fill: none;
+    stroke: var(--color-accent);
+    stroke-width: 1.5;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    /* Thời gian chạy hết một vòng: nhanh hơn 1,5 lần so với 0,76s trước đây */
+    transition: stroke-dashoffset 0.5s linear;
+  }
+
+  .frame-trace:hover .frame-trace__rect,
+  .frame-trace:focus-visible .frame-trace__rect,
+  .frame-trace:focus-within .frame-trace__rect {
+    stroke-dashoffset: 0;
+  }
+}
+
+@layer utilities {
+  /* ------------------------------------------------------------------
+     Hiệu ứng reveal khi cuộn trang.
+     Phần tử chỉ đổi trạng thái một lần duy nhất từ "out" sang "in" và
+     không bao giờ bị ẩn lại, nên không có chuyện biến mất khi nhấn vào.
+     ------------------------------------------------------------------ */
+  [data-reveal] {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+    transition:
+      opacity 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
+      transform 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  [data-reveal="fade"] {
+    transform: none;
+  }
+
+  [data-reveal="left"] {
+    transform: translate3d(-28px, 0, 0);
+  }
+
+  [data-reveal="right"] {
+    transform: translate3d(28px, 0, 0);
+  }
+
+  [data-reveal-state="in"] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Trường hợp tắt JavaScript được xử lý bằng thẻ <noscript> trong app/layout.tsx. */
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    [data-reveal] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .frame-trace__rect {
+      transition-duration: 0.01ms;
+    }
+
+    .btn:hover,
+    .social-dot:hover {
+      transform: none;
+    }
+  }
+
+  /* Văn bản dài lấy từ dữ liệu sản phẩm */
+  .rich-text p {
+    margin-top: 0.85rem;
+    color: var(--color-ink-soft);
+  }
+
+  .rich-text p:first-child {
+    margin-top: 0;
+  }
 }

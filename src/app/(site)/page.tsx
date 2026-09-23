@@ -4,7 +4,6 @@ import type { CSSProperties } from 'react';
 
 import { FrameTrace } from '@/components/frame-trace';
 import { ArrowRight, featureIcon } from '@/components/icons';
-import { Numerals } from '@/components/numerals';
 import { ProductCard } from '@/components/product-card';
 import { Reveal } from '@/components/reveal';
 import { SectionHeading } from '@/components/section-heading';
@@ -276,8 +275,8 @@ export default async function HomePage() {
                       <p className="text-[0.625rem] font-semibold tracking-[0.2em] text-accent uppercase">
                         {lead.line || lead.category}
                       </p>
-                      <h3 className="mt-3 font-display text-2xl leading-snug text-ink md:text-[1.75rem]">
-                        <Numerals>{lead.name}</Numerals>
+                      <h3 className="mt-3 font-sans text-2xl leading-snug text-ink md:text-[1.75rem]">
+                        {lead.name}
                       </h3>
                       <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-muted">
                         {lead.intro}

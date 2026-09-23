@@ -48,7 +48,7 @@ export function ProductCard({
           <p className="text-[0.625rem] font-semibold tracking-[0.2em] text-accent uppercase">
             {product.line || product.category}
           </p>
-          <h3 className="mt-2.5 text-[0.9375rem] leading-snug font-semibold text-ink md:text-base">
+          <h3 className="mt-2.5 font-sans text-[0.9375rem] leading-snug font-semibold text-ink md:text-base">
             {product.name}
           </h3>
           {product.intro ? (

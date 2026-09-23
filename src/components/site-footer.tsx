@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { socialIcon } from '@/components/icons';
@@ -58,10 +59,14 @@ export function SiteFooter() {
         <div className="grid gap-12 py-16 md:grid-cols-2 md:py-20 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-3">
             <div className="flex flex-col leading-none">
-              <span className="font-display text-[1.75rem] tracking-[0.3em] text-white">
-                {site.brand}
-              </span>
-              <span className="mt-2 text-[0.5625rem] tracking-[0.34em] text-white/45 uppercase">
+              <Image
+                src="/logo-white.png"
+                alt={site.name}
+                width={574}
+                height={116}
+                className="h-8 w-auto self-start"
+              />
+              <span className="mt-2.5 text-[0.5625rem] tracking-[0.34em] text-white/45 uppercase">
                 {site.tagline}
               </span>
             </div>

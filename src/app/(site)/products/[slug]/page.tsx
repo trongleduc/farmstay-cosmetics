@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { ArrowRight, CheckIcon, PhoneIcon } from '@/components/icons';
-import { Numerals } from '@/components/numerals';
 import { ProductCard } from '@/components/product-card';
 import { ProductGallery } from '@/components/product-gallery';
 import { Reveal } from '@/components/reveal';
@@ -139,8 +138,8 @@ export default async function ProductDetailPage(props: PageProps<'/products/[slu
                     </span>
                   ))}
                 </div>
-                <h1 className="mt-6 font-display text-[2rem] leading-[1.15] text-ink md:text-[2.5rem]">
-                  <Numerals>{product.name}</Numerals>
+                <h1 className="mt-6 font-sans text-[2rem] leading-[1.15] font-semibold text-ink md:text-[2.5rem]">
+                  {product.name}
                 </h1>
                 <p className="mt-5 text-2xl font-medium text-ink">{formatPrice(product.price)}</p>
               </Reveal>

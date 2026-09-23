@@ -15,6 +15,24 @@ export const editorial = {
     src: `/banner.png`,
     alt: 'Bộ kem dưỡng da tay Farmstay Eau de Parfum đặt trên nền vải sáng',
   },
+  /**
+   * Các banner chạy nối tiếp sau banner chính trong carousel đầu trang chủ.
+   * Chữ đã in sẵn trong ảnh nên trang không đặt thêm chữ hay nút lên trên.
+   * `position` là điểm neo khi ảnh phải cắt bớt trên màn hình rộng — đặt về
+   * phía có khối chữ để phần đó không bị xén.
+   */
+  bannerSlides: [
+    {
+      src: '/banner-1.png',
+      alt: 'Farmstay Collagen & Hyaluronic Acid All In One Ampoule 250ml — hơn 1.800.000 chai đã được bán ra',
+      position: 'md:object-[60%_center]',
+    },
+    {
+      src: '/banner-2.png',
+      alt: 'Farmstay Eau de Parfume Hand Cream — hương thơm tinh tế, dưỡng ẩm mềm mịn cho đôi tay',
+      position: 'md:object-[65%_center]',
+    },
+  ],
   /** Bộ kem dưỡng tay đặt trên nền vải sáng — tông trắng, hợp làm ảnh hero. */
   hero: {
     src: `${base}/eau-de-parfum-hand-cream/eau-de-parfum-hand-cream-02.jpg`,
@@ -27,7 +45,7 @@ export const editorial = {
   },
   /** Khối giới thiệu thương hiệu trên trang chủ. */
   brand: {
-    src: `${base}/real-bamboo-essence-mask/real-bamboo-essence-mask-03.jpg`,
+    src: `/skin.jpg`,
     alt: 'Mặt nạ tinh chất Farmstay Real Bamboo trong quy trình chăm sóc da',
   },
   /** Dải ảnh tối giữa trang, dùng cho câu chuyện thương hiệu. */

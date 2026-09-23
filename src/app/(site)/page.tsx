@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { CSSProperties } from 'react';
 
 import { FrameTrace } from '@/components/frame-trace';
+import { HeroCarousel } from '@/components/hero-carousel';
 import { ArrowRight, featureIcon } from '@/components/icons';
 import { ProductCard } from '@/components/product-card';
 import { Reveal } from '@/components/reveal';
@@ -49,7 +50,12 @@ export default async function HomePage() {
   return (
     <>
       {/* ------------------------------------------------------- Banner đầu trang */}
-      <section className="relative isolate -mt-18 flex flex-col overflow-hidden bg-cream md:-mt-22 md:block md:bg-transparent">
+      {/* Banner chính quyết định chiều cao; trên màn hình rộng khối cao theo tỉ lệ
+          ảnh banner (~2,5:1) để các banner ảnh phía sau ít bị cắt. */}
+      <HeroCarousel
+        slides={editorial.bannerSlides}
+        className="relative isolate -mt-18 flex flex-col overflow-hidden bg-cream md:-mt-22 md:min-h-[min(calc(5.5rem+40vw),56rem)] md:justify-center md:bg-transparent"
+      >
         {/*
           Ảnh banner là ảnh ngang, sản phẩm nằm lệch phải. Cắt giữa trên màn hình
           dọc sẽ xén mất sản phẩm và đẩy chữ đè lên nó, nên trên di động ảnh tách
@@ -120,7 +126,7 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </HeroCarousel>
 
       {/* ------------------------------------------------ Dải điểm nhấn dưới banner */}
       <section className="border-y border-line bg-sand">

@@ -49,8 +49,7 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Chỉ tiêu đề lớn dùng font serif; tiêu đề nhỏ theo font chữ chung (Montserrat).
-     Nơi nào cần serif cho tiêu đề nhỏ thì thêm class font-display. */
+  /* Mọi cấp tiêu đề dùng Playfair Display; nội dung còn lại theo font chữ chung (Montserrat). */
   h1,
   h2 {
     font-family: var(--font-display);
@@ -61,8 +60,10 @@
   }
 
   h3,
-  h4 {
-    font-family: var(--font-sans);
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
     font-weight: 600;
     line-height: 1.35;
     color: var(--color-ink);

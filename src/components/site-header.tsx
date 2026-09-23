@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -74,11 +75,15 @@ export function SiteHeader() {
               className="group flex shrink-0 flex-col leading-none"
               aria-label={site.name}
             >
-              {/* Giãn chữ hẹp lại trên màn hình nhỏ để logo không chiếm hết hàng */}
-              <span className="font-display text-[1.375rem] tracking-[0.22em] text-ink sm:text-2xl sm:tracking-[0.3em] md:text-[1.75rem]">
-                {site.brand}
-              </span>
-              <span className="mt-1 text-[0.5rem] tracking-[0.28em] text-muted uppercase sm:text-[0.5625rem] sm:tracking-[0.34em]">
+              <Image
+                src="/logo.png"
+                alt={site.name}
+                width={574}
+                height={116}
+                priority
+                className="h-6 w-auto sm:h-7 md:h-8"
+              />
+              <span className="mt-1.5 text-[0.5rem] tracking-[0.28em] text-muted uppercase sm:text-[0.5625rem] sm:tracking-[0.34em]">
                 {site.tagline}
               </span>
             </Link>
@@ -171,7 +176,7 @@ export function SiteHeader() {
         className="drawer-panel lg:hidden"
       >
         <div className="flex h-18 shrink-0 items-center justify-between gap-4 border-b border-line px-5">
-          <span className="font-display text-lg tracking-[0.26em] text-ink">{site.brand}</span>
+          <Image src="/logo.png" alt={site.name} width={574} height={116} className="h-6 w-auto" />
           <button
             type="button"
             onClick={() => setMenuOpen(false)}

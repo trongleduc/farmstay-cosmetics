@@ -10,7 +10,7 @@ const playfair = Playfair_Display({
   display: 'swap',
 });
 
-// Font chữ chung của toàn site. Tiêu đề lớn vẫn dùng Playfair Display.
+// Font chữ chung của toàn site. Các tiêu đề (h1–h6) dùng Playfair Display.
 const montserrat = Montserrat({
   variable: '--font-montserrat',
   subsets: ['latin', 'latin-ext', 'vietnamese'],

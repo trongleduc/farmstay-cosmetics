@@ -141,6 +141,20 @@ export function SiteFooter() {
           </p>
           <p>Thương hiệu Farmstay được phát triển bởi Myungin Cosmetics Co., Ltd. — Hàn Quốc.</p>
         </div>
+
+        <div className="border-t border-white/12 py-5 text-center text-xs text-white/40">
+          <p>
+            Website được thiết kế bởi{' '}
+            <a
+              href="https://ximitech.vn"
+              target="_blank"
+              rel="noopener"
+              className="text-white/60 transition-colors hover:text-white"
+            >
+              ximitech.vn
+            </a>
+          </p>
+        </div>
       </div>
     </footer>
   );

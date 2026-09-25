@@ -1,57 +1,42 @@
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
+import { cache } from 'react';
 
+import { productsCollection } from '@/lib/db';
+import { uploadObject } from '@/lib/storage';
 import { taxonomyGroups, type TaxonomyKey } from '@/lib/taxonomy';
 import type { Product, ProductInput } from '@/lib/types';
 
 /**
- * Kho dữ liệu sản phẩm dạng file JSON (`data/products.json`).
- * Đủ cho quy mô danh mục hiện tại và không cần cài thêm cơ sở dữ liệu.
+ * Kho dữ liệu sản phẩm trên MongoDB (collection `products`), ảnh lưu trên R2.
+ * Dữ liệu ban đầu nạp từ `data/products.json` bằng `npm run db:seed`.
  * Chỉ được import từ Server Component, Server Action hoặc Route Handler.
  */
 
-const DATA_FILE = path.join(process.cwd(), 'data', 'products.json');
-const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads');
-
-/** Nối các lần ghi lại thành hàng đợi để hai request không ghi đè nhau. */
-let writeQueue: Promise<unknown> = Promise.resolve();
-
-function enqueue<T>(job: () => Promise<T>): Promise<T> {
-  const run = writeQueue.then(job, job);
-  writeQueue = run.catch(() => undefined);
-  return run;
-}
+/** Bỏ `_id` nội bộ của MongoDB; site chỉ dùng trường `id` riêng. */
+const PROJECTION = { projection: { _id: 0 } } as const;
 
 function sortProducts(products: Product[]): Product[] {
   return [...products].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, 'vi'));
 }
 
-async function readFile(): Promise<Product[]> {
-  try {
-    const raw = await fs.readFile(DATA_FILE, 'utf8');
-    const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as Product[]) : [];
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
-    throw error;
-  }
+async function readAll(): Promise<Product[]> {
+  const collection = await productsCollection();
+  return collection.find({}, PROJECTION).toArray();
 }
 
-async function writeFile(products: Product[]): Promise<void> {
-  await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
-  await fs.writeFile(DATA_FILE, JSON.stringify(sortProducts(products), null, 2) + '\n', 'utf8');
-}
-
-export async function getProducts(): Promise<Product[]> {
-  return sortProducts(await readFile());
-}
+/**
+ * Danh mục đầy đủ, đã sắp xếp. Bọc `cache` để các hàm khác gọi lại trong cùng
+ * một lần dựng trang (facet, taxonomy, sản phẩm liên quan) chỉ tốn một truy vấn.
+ */
+export const getProducts = cache(async (): Promise<Product[]> => sortProducts(await readAll()));
 
 export async function getProductBySlug(slug: string): Promise<Product | undefined> {
-  return (await readFile()).find((p) => p.slug === slug);
+  const collection = await productsCollection();
+  return (await collection.findOne({ slug }, PROJECTION)) ?? undefined;
 }
 
 export async function getProductById(id: string): Promise<Product | undefined> {
-  return (await readFile()).find((p) => p.id === id);
+  const collection = await productsCollection();
+  return (await collection.findOne({ id }, PROJECTION)) ?? undefined;
 }
 
 export async function getFeaturedProducts(limit = 5): Promise<Product[]> {
@@ -184,9 +169,18 @@ export function toProductInput(product: Product): ProductInput {
   };
 }
 
+/** Lỗi trùng khóa của MongoDB, xảy ra khi hai request cùng lấy một id hoặc đường dẫn. */
+function isDuplicateKey(error: unknown): boolean {
+  return (error as { code?: number } | null)?.code === 11000;
+}
+
 export async function createProduct(input: ProductInput): Promise<Product> {
-  return enqueue(async () => {
-    const products = await readFile();
+  const collection = await productsCollection();
+
+  // id và đường dẫn được tính từ dữ liệu hiện có; nếu request khác vừa chiếm
+  // mất thì chỉ mục duy nhất báo lỗi và ta tính lại.
+  for (let attempt = 0; ; attempt += 1) {
+    const products = await readAll();
     const product: Product = {
       ...input,
       id: nextId(products),
@@ -194,36 +188,36 @@ export async function createProduct(input: ProductInput): Promise<Product> {
       order: input.order || products.length + 1,
       updatedAt: new Date().toISOString(),
     };
-    await writeFile([...products, product]);
-    return product;
-  });
+    try {
+      // Chép ra object mới vì insertOne gắn thêm `_id` vào chính object được truyền vào.
+      await collection.insertOne({ ...product });
+      return product;
+    } catch (error) {
+      if (!isDuplicateKey(error) || attempt >= 4) throw error;
+    }
+  }
 }
 
 export async function updateProduct(id: string, input: ProductInput): Promise<Product | null> {
-  return enqueue(async () => {
-    const products = await readFile();
-    const index = products.findIndex((p) => p.id === id);
-    if (index === -1) return null;
-    const product: Product = {
-      ...input,
-      id,
-      slug: uniqueSlug(products, input.slug, id),
-      updatedAt: new Date().toISOString(),
-    };
-    products[index] = product;
-    await writeFile(products);
-    return product;
-  });
+  const collection = await productsCollection();
+  const existing = await collection.findOne({ id }, PROJECTION);
+  if (!existing) return null;
+
+  const products = await readAll();
+  const product: Product = {
+    ...input,
+    id,
+    slug: uniqueSlug(products, input.slug, id),
+    updatedAt: new Date().toISOString(),
+  };
+  const result = await collection.replaceOne({ id }, product);
+  return result.matchedCount ? product : null;
 }
 
 export async function deleteProduct(id: string): Promise<boolean> {
-  return enqueue(async () => {
-    const products = await readFile();
-    const next = products.filter((p) => p.id !== id);
-    if (next.length === products.length) return false;
-    await writeFile(next);
-    return true;
-  });
+  const collection = await productsCollection();
+  const result = await collection.deleteOne({ id });
+  return result.deletedCount === 1;
 }
 
 // --- ảnh tải lên ----------------------------------------------------------
@@ -240,7 +234,7 @@ const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 export type UploadResult = { urls: string[]; errors: string[] };
 
 /**
- * Lưu ảnh admin tải lên vào `public/uploads` và trả về đường dẫn công khai.
+ * Tải ảnh admin chọn lên R2 (thư mục `uploads/<slug>/`) và trả về đường dẫn công khai.
  * Tên file do server đặt nên tên gốc của người dùng không ảnh hưởng đến đường dẫn.
  */
 export async function saveUploadedImages(files: File[], slug: string): Promise<UploadResult> {
@@ -259,11 +253,14 @@ export async function saveUploadedImages(files: File[], slug: string): Promise<U
       errors.push(`${file.name}: ảnh vượt quá 8MB.`);
       continue;
     }
-    const dir = path.join(UPLOAD_DIR, safeSlug);
-    await fs.mkdir(dir, { recursive: true });
     const name = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}${ext}`;
-    await fs.writeFile(path.join(dir, name), Buffer.from(await file.arrayBuffer()));
-    urls.push(`/uploads/${safeSlug}/${name}`);
+    try {
+      const body = new Uint8Array(await file.arrayBuffer());
+      urls.push(await uploadObject(`uploads/${safeSlug}/${name}`, body, file.type));
+    } catch (error) {
+      console.error('Tải ảnh lên R2 thất bại:', error);
+      errors.push(`${file.name}: không tải lên được, vui lòng thử lại.`);
+    }
   }
 
   return { urls, errors };

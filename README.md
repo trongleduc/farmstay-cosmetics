@@ -40,22 +40,31 @@ src/lib             Dữ liệu, cấu hình site, xác thực, tiện ích
 src/proxy.ts        Chặn sớm /admin khi chưa đăng nhập
 data/products.json  Dữ liệu sản phẩm
 public/products     Ảnh sản phẩm ban đầu
-public/uploads      Ảnh do admin tải lên
+scripts/seed.mjs    Nạp dữ liệu ban đầu vào MongoDB và R2
 ```
 
 ## Dữ liệu sản phẩm
 
-Sản phẩm lưu trong `data/products.json`, đọc và ghi qua `src/lib/products.ts`. Sau mỗi thao tác
-trong trang quản trị, các trang công khai được làm mới bằng `revalidatePath`.
+Sản phẩm lưu trên MongoDB (collection `products`), ảnh sản phẩm lưu trên Cloudflare R2. Toàn bộ
+việc đọc và ghi đi qua `src/lib/products.ts`. Sau mỗi thao tác trong trang quản trị, các trang
+công khai được làm mới bằng `revalidatePath`.
 
-Vì dữ liệu và ảnh tải lên nằm trên ổ đĩa, hãy triển khai dưới dạng một Node server có ổ đĩa ghi
-được (VPS, Docker, hoặc dịch vụ có persistent volume). Nếu chuyển sang môi trường serverless,
-cần thay `src/lib/products.ts` bằng một cơ sở dữ liệu và chuyển ảnh sang dịch vụ lưu trữ ngoài.
+`data/products.json` chỉ còn là dữ liệu ban đầu. Nạp vào database và đẩy ảnh lên R2 bằng:
+
+```bash
+npm run db:seed              # chỉ thêm sản phẩm chưa có, không đụng vào sản phẩm đã sửa
+npm run db:seed -- --force   # ghi đè toàn bộ bằng dữ liệu trong file
+```
+
+`npm run build` đọc dữ liệu thật từ MongoDB để dựng sẵn trang, nên môi trường build cũng cần
+đủ biến `MONGODB_*` và `R2_*`.
 
 ## Cấu hình cần cập nhật
 
-- `.env.local` — `ADMIN_PASSWORD`, `ADMIN_SECRET` (bắt buộc đổi trước khi chạy thật) và
-  `NEXT_PUBLIC_SITE_URL` (dùng cho sitemap, robots.txt và thẻ Open Graph).
+- `.env.local` — `ADMIN_PASSWORD`, `ADMIN_SECRET` (bắt buộc đổi trước khi chạy thật),
+  `NEXT_PUBLIC_SITE_URL` (dùng cho sitemap, robots.txt và thẻ Open Graph), `MONGODB_URI`,
+  `MONGODB_DB` và các biến `R2_*`. Chỉ điền giá trị thật vào `.env.local`; `.env.example` được
+  commit lên git nên chỉ để trống.
 - `src/lib/site.ts` — thông tin công ty, và đường dẫn các kênh mạng xã hội / kênh bán hàng.
   Kênh nào chưa điền đường dẫn sẽ hiển thị mờ ở footer thay vì thành liên kết chết.
 

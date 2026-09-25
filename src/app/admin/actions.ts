@@ -13,6 +13,7 @@ import {
   updateProduct,
 } from '@/lib/products';
 import { slugify } from '@/lib/slug';
+import { isStorageUrl } from '@/lib/storage';
 import type { ProductInput, Spec } from '@/lib/types';
 
 export type FormState = {
@@ -71,9 +72,11 @@ function parseImages(formData: FormData): string[] {
   try {
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    // Chỉ chấp nhận đường dẫn nội bộ để không nhúng được ảnh từ nguồn lạ.
+    // Chỉ chấp nhận ảnh nội bộ hoặc ảnh trên R2 của site để không nhúng được ảnh từ nguồn lạ.
     return parsed.filter(
-      (item): item is string => typeof item === 'string' && item.startsWith('/'),
+      (item): item is string =>
+        typeof item === 'string' &&
+        ((item.startsWith('/') && !item.startsWith('//')) || isStorageUrl(item)),
     );
   } catch {
     return [];

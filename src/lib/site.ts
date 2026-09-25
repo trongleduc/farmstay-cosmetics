@@ -36,15 +36,14 @@ export type SocialLink = {
 };
 
 export const socialLinks: SocialLink[] = [
-  { label: 'Facebook', href: '' },
-  { label: 'Instagram', href: '' },
-  { label: 'TikTok', href: '' },
-  { label: 'YouTube', href: '' },
+  { label: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61594144955400' },
+  { label: 'Instagram', href: 'https://www.instagram.com/farmstay.official_global/' },
+  { label: 'YouTube', href: 'https://www.youtube.com/@farmstaycosmetics2982' },
 ];
 
 /** Các kênh bán hàng (Shopee, Lazada, TikTok Shop...). Thêm vào là footer tự hiện. */
 export const salesChannels: SocialLink[] = [
-  { label: 'Shopee', href: '' },
+  { label: 'Shopee', href: 'https://shopee.vn/228o2govg9' },
   { label: 'Lazada', href: '' },
   { label: 'TikTok Shop', href: '' },
 ];
